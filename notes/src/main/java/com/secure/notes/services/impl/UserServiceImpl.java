@@ -2,8 +2,8 @@ package com.secure.notes.services.impl;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
 import com.secure.notes.dtos.UserDTO;
 import com.secure.notes.models.AppRole;
 import com.secure.notes.models.Role;
@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService{
         userRepository.save(user);
     }
 
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     public List<User> getAllUsers(){
         return userRepository.findAll();

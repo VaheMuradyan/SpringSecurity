@@ -17,6 +17,7 @@ import com.secure.notes.services.UserService;
 
 @RestController
 @RequestMapping("/api/admin")
+//@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
     
     private UserService userService;
@@ -25,6 +26,7 @@ public class AdminController {
         this.userService = userService;
     }
 
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/getusers")
     public ResponseEntity<List<User>> getAllUsers(){
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
@@ -36,6 +38,7 @@ public class AdminController {
          return ResponseEntity.ok("User role updated");                                
     }
 
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/user/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id){
         return new ResponseEntity<>(userService.getUserById(id),
