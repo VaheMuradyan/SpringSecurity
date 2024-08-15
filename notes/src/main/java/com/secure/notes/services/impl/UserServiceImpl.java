@@ -1,8 +1,9 @@
 package com.secure.notes.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
-
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.secure.notes.dtos.UserDTO;
 import com.secure.notes.models.AppRole;
@@ -64,5 +65,13 @@ public class UserServiceImpl implements UserService{
                 user.getUpdatedDate()
         );
     }
+
+    @Override
+    public User findByUsername(String username){
+        Optional<User> user = userRepository.findByUserName(username);
+        return user.orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    
 
 }
