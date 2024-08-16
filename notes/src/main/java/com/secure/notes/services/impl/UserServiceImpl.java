@@ -3,7 +3,9 @@ package com.secure.notes.services.impl;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.security.core.userdetails.UserDetails;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.secure.notes.dtos.UserDTO;
 import com.secure.notes.models.AppRole;
@@ -15,14 +17,16 @@ import com.secure.notes.services.UserService;
 
 @Service
 public class UserServiceImpl implements UserService{
-    
-    UserRepository userRepository;
-    RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository){
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
 
     @Override
     public void updateUserRole(Long userId, String roleName){
@@ -72,6 +76,48 @@ public class UserServiceImpl implements UserService{
         return user.orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    
+    @Override
+    public void updateAccountLockStatus(Long userId, boolean lock) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setAccountNonLocked(!lock);
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
+    }
+
+    @Override
+    public void updateAccountExpiryStatus(Long userId, boolean expire) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setAccountNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setEnabled(enabled);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setCredentialsNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updatePassword(Long userId, String password) {
+        try{
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            user.setPassword(passwordEncoder.encode(password));
+        }catch (Exception e){
+            throw new RuntimeException("Faild to update password");
+        }
+    }
+
 
 }
