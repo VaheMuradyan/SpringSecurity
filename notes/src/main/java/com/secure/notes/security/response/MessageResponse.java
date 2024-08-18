@@ -3,8 +3,8 @@ package com.secure.notes.security.response;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 public class MessageResponse {
     private String message;
 

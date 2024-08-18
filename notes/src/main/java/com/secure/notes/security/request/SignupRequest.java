@@ -2,16 +2,13 @@ package com.secure.notes.security.request;
 
 import java.util.Set;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Data
 public class SignupRequest {
-
     @NotBlank
     @Size(min = 3, max = 20)
     private String username;
@@ -28,5 +25,4 @@ public class SignupRequest {
     @NotBlank
     @Size(min = 6, max = 40)
     private String password;
-    
 }

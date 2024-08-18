@@ -4,6 +4,7 @@ import com.secure.notes.models.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -25,6 +26,6 @@ public class UserDTO {
     private boolean isTwoFactorEnabled;
     private String signUpMethod;
     private Role role;
-    private LocalDateTime creatDate;
+    private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 }

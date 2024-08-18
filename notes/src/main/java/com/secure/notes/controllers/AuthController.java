@@ -1,28 +1,5 @@
 package com.secure.notes.controllers;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.secure.notes.models.AppRole;
 import com.secure.notes.models.Role;
 import com.secure.notes.models.User;
@@ -35,35 +12,48 @@ import com.secure.notes.security.response.LoginResponse;
 import com.secure.notes.security.response.MessageResponse;
 import com.secure.notes.security.response.UserInfoResponse;
 import com.secure.notes.services.UserService;
-
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-//taki tokx@ htuk frontin requestner toxelu hamara
-//@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/auth")
-
 public class AuthController {
-    
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    JwtUtils jwtUtils;
 
     @Autowired
-    private UserRepository userRepository;
+    AuthenticationManager authenticationManager;
 
     @Autowired
-    private RoleRepository roleRepository;
+    UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder encoder;
+    RoleRepository roleRepository;
 
     @Autowired
-    private UserService userService;
+    PasswordEncoder encoder;
 
-    
+    @Autowired
+    UserService userService;
 
     @PostMapping("/public/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -78,7 +68,7 @@ public class AuthController {
             return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
         }
 
-        // set the authentication
+//      Set the authentication
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -91,13 +81,14 @@ public class AuthController {
                 .collect(Collectors.toList());
 
         // Prepare the response body, now including the JWT token directly in the body
-        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken);
+        LoginResponse response = new LoginResponse(userDetails.getUsername(),
+                roles, jwtToken);
 
         // Return the response entity with the JWT token included in the response body
         return ResponseEntity.ok(response);
     }
 
-    // AuthController.java
+
     @PostMapping("/public/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUserName(signUpRequest.getUsername())) {
@@ -120,7 +111,7 @@ public class AuthController {
             role = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
         } else {
-            String roleStr = strRoles.iterator().next();  
+            String roleStr = strRoles.iterator().next();
             if (roleStr.equals("admin")) {
                 role = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
                         .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -171,9 +162,33 @@ public class AuthController {
     }
 
     @GetMapping("/username")
-    public String currentUserName(@AuthenticationPrincipal UserDetails userDetails){
+    public String currentUserName(@AuthenticationPrincipal UserDetails userDetails) {
         return (userDetails != null) ? userDetails.getUsername() : "";
     }
-    
-}
 
+    @PostMapping("/public/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        try {
+            userService.generatePasswordResetToken(email);
+            return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error sending password reset email"));
+        }
+
+    }
+
+    @PostMapping("/public/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String token,
+                                           @RequestParam String newPassword) {
+
+        try {
+            userService.resetPassword(token, newPassword);
+            return ResponseEntity.ok(new MessageResponse("Password reset successful"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponse(e.getMessage()));
+        }
+    }
+}

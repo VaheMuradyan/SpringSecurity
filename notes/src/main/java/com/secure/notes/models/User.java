@@ -1,42 +1,29 @@
 package com.secure.notes.models;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "users",
         uniqueConstraints = {
-            @UniqueConstraint(columnNames = "username"),
-            @UniqueConstraint(columnNames = "email")
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
         })
-public class User {
-    
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -78,31 +65,33 @@ public class User {
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime creatDate;
+    private LocalDateTime createdDate;
 
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
-    public User(String userName, String email, String password){
+    public User(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
         this.password = password;
     }
 
-    public User(String userName, String email){
+    public User(String userName, String email) {
         this.userName = userName;
         this.email = email;
     }
 
     @Override
-    public boolean equals(Object o){
-        if(this == o) return true;
-        if(!(o instanceof User)) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
         return userId != null && userId.equals(((User) o).getUserId());
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return getClass().hashCode();
     }
 }
+
+

@@ -1,21 +1,21 @@
 package com.secure.notes.services.impl;
 
 import com.secure.notes.models.AuditLog;
+import com.secure.notes.models.Note;
 import com.secure.notes.repositories.AuditLogRepository;
+import com.secure.notes.services.AuditLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.secure.notes.models.Note;
-import com.secure.notes.services.AuditLogService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class AuditLogServiceImpl implements AuditLogService{
+public class AuditLogServiceImpl implements AuditLogService {
 
     @Autowired
-    private AuditLogRepository auditLogRepository;
+    AuditLogRepository auditLogRepository;
+
     @Override
     public void logNoteCreation(String username, Note note){
         AuditLog log = new AuditLog();
@@ -44,7 +44,6 @@ public class AuditLogServiceImpl implements AuditLogService{
         log.setAction("DELETE");
         log.setUsername(username);
         log.setNoteId(noteId);
-        log.setNoteContent("Note delete");
         log.setTimestamp(LocalDateTime.now());
         auditLogRepository.save(log);
     }
@@ -55,7 +54,7 @@ public class AuditLogServiceImpl implements AuditLogService{
     }
 
     @Override
-    public List<AuditLog> getAuditLogsForNoteid(Long id) {
+    public List<AuditLog> getAuditLogsForNoteId(Long id) {
         return auditLogRepository.findByNoteId(id);
     }
 }
